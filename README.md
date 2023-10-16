@@ -4,7 +4,9 @@ REST API for a vet clinic
 
 General end point:
 http://localhost:8080/api/v1/
+
 -----------------------------------------------------------------------
+
 Authentication endpoints:
 
 http://localhost:8080/api/v1/register{POST}
@@ -34,7 +36,9 @@ Example request:
     "username" : "username",
     "password": "password"
 }
+
 ------------------------------------------------------------------------
+
 (NEED TO PASS JWT)
 Pet endpoints:
 
@@ -53,7 +57,9 @@ Example reuqest:
     "specie" : "Specie",
     "breed": "Breed"
 }
+
 --------------------------------------------------------------------------
+
 (NEED TO PASS JWT)
 User endpoints:
 
@@ -94,9 +100,8 @@ RETURNS - DTO with id, name, specie, breed and owner(user) of the deleted pet
 
 Example request: http://localhost:8080/api/v1/users/pets&petId=***
 
-
-
 --------------------------------------------------------------------------
+
 (NEED TO PASS JWT)
 Visits endpoints:
 
