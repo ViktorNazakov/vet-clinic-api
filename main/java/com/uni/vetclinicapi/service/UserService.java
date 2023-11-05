@@ -7,6 +7,7 @@ import com.uni.vetclinicapi.persistance.repository.UserRepository;
 import com.uni.vetclinicapi.presentation.exceptions.PetAlreadyExistsException;
 import com.uni.vetclinicapi.presentation.exceptions.PetNotFoundException;
 import com.uni.vetclinicapi.service.dto.FullPetDTO;
+import com.uni.vetclinicapi.service.dto.UserInfoDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -59,5 +60,15 @@ public class UserService implements UserDetailsService {
         Pet updatedCar = petRepository.save(petToAddToUser);
         log.info("Successfully added and saved owner (user) with id : {}, to pet with id : {}.", user.getId(), petId);
         return modelMapper.map(updatedCar, FullPetDTO.class);
+    }
+
+    /**
+     * Returns currently logged-in user's info.
+     *
+     * @return - UserInfoDTO with all the information about the user.
+     */
+    public UserInfoDTO getLoggedUserInfo() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return modelMapper.map(user, UserInfoDTO.class);
     }
 }

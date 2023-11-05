@@ -4,6 +4,7 @@ import com.uni.vetclinicapi.service.PetService;
 import com.uni.vetclinicapi.service.UserService;
 import com.uni.vetclinicapi.service.dto.ApiErrorResponseDTO;
 import com.uni.vetclinicapi.service.dto.FullPetDTO;
+import com.uni.vetclinicapi.service.dto.UserInfoDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -32,6 +33,22 @@ public class UserController {
     private final PetService petService;
 
     /**
+     * Returns currently logged-in user's info.
+     *
+     * @return - UserInfoDTO with status code OK(200).
+     */
+    @Operation(summary = "Get details for logged user", tags = {"users"})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully fetched details for logged user", content = @Content(schema = @Schema(implementation = UserInfoDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized.", content = @Content(schema = @Schema(implementation = ApiErrorResponseDTO.class)))
+
+    })
+    @GetMapping
+    public ResponseEntity<UserInfoDTO> getLoggedUserInfo(){
+        return new ResponseEntity<>(userService.getLoggedUserInfo(), HttpStatus.OK);
+    }
+
+    /**
      * Add a pet to the current logged user's profile.
      *
      * @param petId - the id of the pet.
@@ -47,7 +64,7 @@ public class UserController {
     @PutMapping("/pets")
     public ResponseEntity<FullPetDTO> addPetToUser(
             @Parameter(description = "Pet id.")
-            @PathVariable("petId") @NotNull UUID petId){
+            @RequestParam("petId") @NotNull UUID petId){
         return new ResponseEntity<>(userService.addPetToUser(petId), HttpStatus.OK);
     }
 
@@ -84,7 +101,7 @@ public class UserController {
     @DeleteMapping("/pets")
     public ResponseEntity<FullPetDTO> deletePetForUser(
             @Parameter(description = "Pet id.")
-            @PathVariable("petId") @NotNull UUID petId) {
+            @RequestParam("petId") @NotNull UUID petId) {
         return new ResponseEntity<>(petService.deletePetFromUser(petId), HttpStatus.OK);
     }
 }

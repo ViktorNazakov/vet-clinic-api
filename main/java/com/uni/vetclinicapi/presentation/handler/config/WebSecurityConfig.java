@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -22,6 +23,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.Arrays;
 
 /**
  * This class contains the configuration for the Web Security and all of the ants and their authority roles.
@@ -63,31 +71,31 @@ public class WebSecurityConfig{
         return new BCryptPasswordEncoder();
     }
 
-
-/*    protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests()
-                .antMatchers(AUTH_WHITELIST).permitAll()
-                .antMatchers("/api/v1/users").hasAuthority(CUSTOMER_AUTHORITY)
-                .antMatchers(HttpMethod.PUT, "/api/v1/cars/service/*").hasAuthority(MANAGER_AUTHORITY)
-                .antMatchers(HttpMethod.POST, "/api/v1/cars").hasAuthority(MANAGER_AUTHORITY)
-                .antMatchers(HttpMethod.PUT, "/api/v1/cars/**").hasAuthority(MANAGER_AUTHORITY)
-                .antMatchers(HttpMethod.PUT, "/api/v1/users/*").hasAuthority(CUSTOMER_AUTHORITY);
-
-        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-    }*/
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.cors(AbstractHttpConfigurer::disable)
+        http.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint(unauthorizedHandler))
-                .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
-                    authorizationManagerRequestMatcherRegistry.anyRequest().permitAll());
+                .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry -> authorizationManagerRequestMatcherRegistry.requestMatchers("/api/v1/auth/register","/api/v1/auth/login").permitAll()
+                        .requestMatchers("/api/v1/users").hasAuthority(CUSTOMER_AUTHORITY)
+                        .requestMatchers("/api/v1/users/pets").hasAuthority(CUSTOMER_AUTHORITY)
+                        .requestMatchers("/api/v1/pets").hasAuthority(CUSTOMER_AUTHORITY)
+                        .requestMatchers("/api/v1/visits").hasAuthority(CUSTOMER_AUTHORITY));
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type", "x-auth-token"));
+        configuration.setExposedHeaders(Arrays.asList("x-auth-token"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
 }

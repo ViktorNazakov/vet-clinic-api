@@ -52,7 +52,6 @@ public class PetService {
         }
 
         Pet pet = modelMapper.map(petDTO, Pet.class);
-        pet.setUser(user);
         Pet persistedPet = petRepository.save(pet);
         log.info("Pet with details : {}, was created!", pet);
         return modelMapper.map(persistedPet, FullPetDTO.class);
@@ -83,6 +82,8 @@ public class PetService {
      */
     public FullPetDTO deletePetFromUser(UUID petId) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        System.out.println(petId);
+        System.out.println(petRepository.findById(petId));
         Pet pet = petRepository.findById(petId).orElseThrow(() -> {
             log.warn("Attempted to delete a Pet with id: {} for User with id: {}, which does not exist.", petId,user.getId());
             throw new PetNotFoundException(String.format("Pet with id: %s and owner: %s does not exist!", petId,user.getUsername()));
