@@ -37,6 +37,8 @@ Example request:
     "username" : "username",
     "password": "password"
 }
+
+
 ------------------------------------------------------------------------
 (NEED TO PASS JWT)
 Pet endpoints:
@@ -56,6 +58,8 @@ Example reuqest:
     "specie" : "Specie",
     "breed": "Breed"
 }
+
+
 --------------------------------------------------------------------------
 (NEED TO PASS JWT)
 User endpoints:
